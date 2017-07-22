@@ -1,0 +1,59 @@
+How does containers achieve isolation between each other:
+
+Namespaces: different types of namespaces are pid, net, ipc ,mnt, uts.
+
+pid namespace useful for basic isolation. Each pid namespace has its own process numbering. Each pid namespace has its own PID 1 or init like process. 
+
+Each net namespace can have its own network interface.similar to VM case
+
+mnt namespace directories mount points. Similar to chroot
+
+uts namespace deals with hostname.
+
+namespaces are created by the clone system call.
+
+Cgroups, Chroot, lxc, libcontainer, AUFS etc.
+
+
+https://www.docker.com/what-container Difference between container and VM
+
+advantages
+
+	fast deployment, ~seconds
+	better performance
+	less bulky images
+
+disadvantages
+
+	not as secure
+	resources are not reserved
+	hard concept to grasp
+
+Docker makes containers easy. Kubernetes, rocket are competing container products. Docker seems more popular at the moment.
+
+Has a hub for existing sharable images. easy to use.
+
+https://en.wikipedia.org/wiki/Docker_(software)#/media/File:Docker-linux-interfaces.svg
+
+Installing docker 
+
+Check for updates to repo
+	sudo apt-get update
+Add docker repo and gpg keys
+	sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+	sudo apt-add-repository 'deb https://apt.dockerproject.org/repo ubuntu-xenial main'
+	sudo apt-get update
+	apt-cache policy docker-engine
+Install engine
+	sudo apt-get install -y docker-engine
+verify daemon is running
+	sudo systemctl status docker
+
+Docker daemon will be running at startup. 
+
+Add user to docker group to execute docker without sudo
+	sudo usermod -aG docker <username>
+
+	log out and log back in
+
+

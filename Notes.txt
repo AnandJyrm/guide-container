@@ -1,0 +1,26 @@
+Containers Demo
+
+* LXC
+
+* LXD
+
+* Docker
+
+--------------------------------------------------------------------------------
+
+LXC
+	1. Setup and Installation
+		1.a Linux Environment 
+		1.b Installation
+		1.c Note
+		1.d Tools available
+	2. Creating a container
+		2.a Templates
+		2.b Default configs
+	3. Configuring the container network
+		3.a Empty containers
+		3.b Containers with hanging veth interfaces
+		3.c Containers connected to linux bridges
+	4. Attaching interfaces to running containers
+		4.a Extracting namespace of containers
+		4.b 
