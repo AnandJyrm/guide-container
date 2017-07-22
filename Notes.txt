@@ -1,4 +1,11 @@
-Containers Demo
+Linux Container Demo
+	-> This demo is meant to be an introduction into the world of Containers for networking students. After completing this demo, you would have the tools to deploy custom VM container networks and manage them remotely. This guide is not meant to be comprehensive. Send me an email in case of questions/clarifications/mistakes. For more information about linux container theory, refer to the ??? Text. For official documention refer to ???(stephane graber blogs, docker docs, official linux docs). May the Google be with you.
+
+
+Author	: Anand Jayaram
+Contact	: anandjyrm@gmail.com
+	: ajayara3@ncsu.edu
+Date	: July 21st, 2017
 
 * LXC
 
@@ -9,18 +16,287 @@ Containers Demo
 --------------------------------------------------------------------------------
 
 LXC
-	1. Setup and Installation
-		1.a Linux Environment 
-		1.b Installation
-		1.c Note
-		1.d Tools available
+	Scope of this demo
+
+	1. Installation
+
+		1.a Linux Environment Setup 
+		1.b How to install
+		1.c Default configuration
+
 	2. Creating a container
+
 		2.a Templates
 		2.b Default configs
-	3. Configuring the container network
-		3.a Empty containers
-		3.b Containers with hanging veth interfaces
-		3.c Containers connected to linux bridges
-	4. Attaching interfaces to running containers
-		4.a Extracting namespace of containers
-		4.b 
+		2.c Sharing Volumes
+
+	3. Accessing/Running Containers
+
+	4. Configuring the container network
+
+		4.a Default containers
+		4.b Containers with hanging veth interfaces
+		4.c Containers connected to linux bridges
+
+	5. Attaching interfaces to running containers
+
+		5.a Extracting namespace of containers
+		5.b Creating Virtual Ethernet Interfaces
+		5.c Attaching Interfaces to everything
+		5.d lxc-device add 
+
+	6. Enabling DHCP, NAT and DNS for the containers
+	
+	7. Managing containers
+
+	8. Automation using scripts/Ansible
+
+
+--------------------------------------------------------------------------------
+
+LXD 
+	Scope of this demo
+
+	1. Setup and Installation
+
+	2. Creating and configuring containers
+
+	3. Creating new network profiles
+
+	4. Publishing containers
+
+	5. LXD management tools
+
+	6. Remote Management using REST APIs
+
+
+--------------------------------------------------------------------------------
+
+Docker
+	Scope of this demo 
+
+	1. Installation
+
+		1.a Version
+		1.b How to install
+		1.c Default Configs
+
+	2. Starting VM containers
+		
+		2.a Docker run
+		2.b Exposing ports
+		2.c Sharing Volumes
+		2.d Accessing Running Containers	
+
+	3. Managing docker container networks
+
+	4. Managing Containers
+		
+		4.a Saving, stopping, pausing, push
+
+	5. Managing Images
+	
+		5.a	Docker hub, publishing
+
+	6. Building from a Dockerfile
+
+	7. App containers
+
+	8. Remote Management using REST APIs
+
+	9. Automation using scripts/Ansible
+
+________________________________________________________________________________
+
+Chapter LXC
+
+	Scope of this demo
+		Creating privileged containers and setting up a simple container network. For unprivileged containers, check out official documentation. Privileged containers require root access. So the lxc- commands will be prefaced by sudo. There could be other ways/commands to do the given demo tasks, feel free to explore them.
+
+	1. Installation
+
+	1.a Linux Environment Setup
+		I will be using Ubuntu 16.04 LTS on AWS EC2 machine for this demo. This is to ensure consistency and convenience, you can freely mess around in this environment. You can use any Linux Machine as long as you have terminal and Internet access. Refer to online docs, in case of issues regarding other distributions.
+
+		*** note on ubuntu version ***
+		use lsb_release -a (??? link to useful linux commands chapter) to check version of linux distribution
+		use uname -a (??? link to useful linux commands chapter) to check kernel version
+
+		*** note on AWS EC2 setup ***
+		???
+
+		*** setting up VM with terminal and Internet Access ***
+		use something
+
+	Other required packages
+		bridge-utils --> sudo apt install bridge-utils
+		text editor of your choice 
+		ip package --> installed by default
+		update (and upgrade everything)
+			sudo apt update
+			sudo apt upgrade -y # optional
+			sudo apt autoremove -y # optional
+	Current setup:
+		ip link output
+		brctl show
+		
+	1.b How to Install
+		sudo apt install lxc
+
+	1.c Default Configuration
+		Check ip link output
+		check brctl show output
+
+		there should be a bridge called lxcbr0 currently up with an IP address present. This is the default bridge created by lxc. The details of this bridge are stored in this location: /etc/default/lxc-net. This bridge will be created and started each time you start the system, unless you modify this file. This file also configures the DHCP and DNS settings for the lxcbr0 bridge. Remember to create a backup of this file in case you are modifying it, since changes are permanent.
+
+	2. Creating a container
+
+		sudo lxc-create {-t "X"} {-n "Y"}
+	
+	here X could be a image like ubuntu, alpine, etc
+
+	to verify sudo lxc-ls -f (--fancy)
+		should show a stopped container
+
+		Issues you could face:	
+			container already exists. Run sudo lxc-ls -f to see list of containers.
+	2.a Templates
+		The templates for creating the OS containers are stored in this location: /usr/share/lxc/templates/lxc-. they are named starting with lxc-. THey are essentially bash scripts which create rootfs directory for the container. In the above command the X can be replaced with any of the template names without the lxc-. The first time the command is used with a particular template the actual rootfs of the container "Y" is created from the template and cached for later use at: ???. subsequent uses copy the rootfs from that location to /var/lib/lxc/Y/ where the actual container resides.
+
+	2.b Default configs
+		The config file for the container is created from a combination of files ???. The final version used in the container is stored in this location ???. this file can be modified before starting the container for desired effects. Modify or create /etc/lxc/default.conf for changing default network configurations of all newly created containers.
+	
+	2.c Sharing Volumes
+		sharing volumes between host and container.
+		https://en.opensuse.org/User:Tsu2/LXC_mount_shared_directory
+
+	3. Accessing/Running Containers
+		sudo lxc-launch -n "Y"
+		sudo lxc-ls -f to verify
+		
+		Issues you could face:
+			the config file has a bridge and the bridge is not actually up. Either change the config file/ bring up the bridge
+			already running same container
+
+		Executing commands on the container lxc-execute -n "Y" command
+
+		Accessing terminal
+			lxc-attach -n "Y" gives you root terminal
+
+			exit to return
+			lxc-console -n "Y" to get a new console. Login using the credentials obtained when creating container
+			exit using ctrl a + q
+
+	4. Configuring the container network
+		
+	4.a Default containers
+		By default the /etc/default/default.conf dictates the network configuration. If the default file was empty, the config file for the new container would have an empty network configuration and the container would have only a loopback interface. If the config file has a veth interface and linked to lxcbr0, then the container would have an ethernet interface. By default lxc configures lxcbr0 with DHCP, NAT and DNS, therefore the container would have have network access to the host machine and internet.
+
+	4.b Containers with hanging veth interfaces
+		Modify the  network configuration file before starting the container to get a hanging veth interface. You can add as many interfaces as you want here.
+
+	4.c Containers connected to linux bridges
+		Modiy the network configuration file before starting the container to connect to any linux bridge. You can add as many interfaces and bridges as you want.
+
+	5. Attaching interfaces to running containers
+		The previous step mentions how to attach interfaces to containers before starting them. This step lets you attach Virtual Ethernet Interfaces to Containers.
+
+	5.a Extracting namespace of containers
+		Each container is a process and each process runs in its own namespaces. most host processes run in the root namespaces. Check sudo ls -l /proc/"PID"/ns/. To allow manipulating the network namespace of a process we need to link the network namespace to the ip netns folder. we create /var/run/netns using mkdir -p /vr/run/netns
+	get the pid of the container using ps -ef |grep "conainer name"
+	link the n/w namespace of the container process to a netns namespace sudo ln -s /proc/PID/ns/net /var/run/netns/containerNamespaceName
+	to verify ip netns show
+	ip netns exec containerNamespaceName ifconfig -a will have the same network as the container.
+
+	5.b Creating Virtual Ethernet Interfaces
+		Virtual Ethernet Interfaces or veth pairs can be created to connect stuff. ip link add veth0 type veth peer name veth1
+
+	5.c Attaching Interfaces to everything
+		ip link set veth0 netns containerNamespacename
+		brctl addif bridgename veth1
+		ip link set veth1 netns another namespace
+		ovs-vsctl add-port br-int veth1
+		
+		to verify run ip link , ovsvsctl show, brctl show, ip netns exec ns ip link etc on host
+		or ip link on container
+		try pinging stuff
+
+		Now we have created L2 and L3 datapaths for the containers.
+
+	5.d lxc-device add 
+
+	6. Enabling DHCP, NAT and DNS for the containers
+
+		by default the lxcbr0 bridge does all this for the containers. You can set up a linux bridge of your own and enable all these from the hosts and connect a container to it. here are the steps for that ???
+
+	7. Managing containers
+		sudo lxc-stop
+		sudo lxc-wait
+		sudo lxc-pause
+		
+		remove stuff using var/lib/lxc
+		check all options here
+
+		????
+
+	8. automation using scripts/ansible
+
+		Since all these commands were run from the CLI, you can technically automate the whole process. You can remotely do this if you have ssh access to a machine. therefore you could even use ansible playbooks to do it. 
+
+		python/bash script to create a 3 router network each router connected to a linux switch which in turn is connected to 2 containers each.
+		Ansible playbook to do some other stuff on a remote machine
+		
+
+________________________________________________________________________________
+
+LXD 
+	Scope of this demo
+		This demo is intended to show 
+	1. Setup and Installation
+
+	2. Creating and configuring containers
+
+	3. Creating new network profiles
+
+	4. Publishing containers
+
+	5. LXD management tools
+
+	6. Remote Management using REST APIs
+
+________________________________________________________________________________
+
+
+Docker
+	Scope of this demo 
+
+	1. Installation
+
+		1.a Version
+		1.b How to install
+		1.c Default Configs
+
+	2. Starting VM containers
+		
+		2.a Docker run
+		2.b Exposing ports
+		2.c Sharing Volumes
+		2.d Accessing Running Containers	
+
+	3. Managing docker container networks
+
+	4. Managing Containers
+		
+		4.a Saving, stopping, pausing, push
+
+	5. Managing Images
+	
+		5.a	Docker hub, publishing
+
+	6. Building from a Dockerfile
+
+	7. App containers
+
+	8. Remote Management using REST APIs
+
+	9. Automation using scripts/Ansible
