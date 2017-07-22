@@ -1,0 +1,69 @@
+namespaces pid mnt net
+chroot
+cgroups
+clone/unshare and ip netns
+containers
+
+container vs VM
+	time
+lxc lex see
+lxd lex dee
+lxc to qemu and lxd to libvirt
+
+docker
+libcontainer or runc
+rkt
+kubernetes
+
+
+
+
+
+
+
+lxc install apt
+lxd install init
+lxd init
+/var/lib/lxd
+
+lxc launch images:alpine/3.5 <container>
+lxc list
+lxc image list
+lxc exec <container> <command>
+lxc stop <container>
+lxc delete <container>
+
+Kernel preparation
+In general, Ubuntu 16.04 should have all the desired features enabled by default. One exception to this is that in order to enable swap accounting the boot argument swapaccount=1 must be set. This can be done by appending it to the GRUB_CMDLINE_LINUX_DEFAULT=variable in /etc/default/grub, then running 'update-grub' as root and rebooting.
+
+
+
+apt install -y iputils-ping
+apt install -y net-tools
+apt install -y curl
+apt install-y  wireshark
+
+sudo apt install lxd-client
+
+sudo lxd init
+sudo lxc init
+
+lxc
+
+sudo apt update
+sudo apt upgrade
+
+sudo apt install -t trusty-backports lxd lxd-client
+
+
+lxdbr0 or lxcbr0
+
+
+
+lxc launch ubuntu:
+
+lxc launch images:alpine/3.5
+
+sudo usermod -aG lxd <username>
+
+
