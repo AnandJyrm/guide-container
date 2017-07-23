@@ -136,8 +136,11 @@ Chapter LXC
 			sudo apt update
 			sudo apt upgrade -y # optional
 			sudo apt autoremove -y # optional
+	Just to cleanup, remove all previous versions and packages of LXC, LXD, LXCFS and Docker. Delete the /var/lib/lxc, /var/lib/lxd/, /etc/default/lxc ???
+	In case you have additional bridges/interfaces created on startup, you can remove them using the ip link set interface down, ip link delete interface , and brctl delbr bridge.
+
 	Current setup:
-		ip link output
+		ip link output 
 		brctl show
 		
 	1.b How to Install
@@ -251,11 +254,12 @@ ________________________________________________________________________________
 
 LXD 
 	Scope of this demo
-		This demo is intended to show 
+		This demo is intended to show the CLI provided by LXD, which is a container management library which uses LXC. The LXC Commands all start with "lxc-...", the LXD commands to manipulate containers begin with "lxc ...". You also have "lxc image ..." commands to manipulate images and "lxd ..." commands for the lxd daemon itself.
+
 	1. Setup and Installation
-
+		Setup is the same as before, we can continue from the previous demo. Install lxd using sudo apt install lxd. The lxd-client package will also be installed along with it.
 	2. Creating and configuring containers
-
+		
 	3. Creating new network profiles
 
 	4. Publishing containers
@@ -263,7 +267,7 @@ LXD
 	5. LXD management tools
 
 	6. Remote Management using REST APIs
-
+		
 ________________________________________________________________________________
 
 
